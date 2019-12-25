@@ -1,0 +1,22 @@
+node{
+    stage('git clone'){
+        git 'https://github.com/jyothindra9999/spring-petclinic.git'
+    }
+
+    stage('package'){
+        sh 'mvn package'
+    }
+    stage("publishing results"){
+        junit 'target/surefire-reports/*.xml'
+    }
+    stage("archiving the artifacts"){
+        archiveArtifacts 'target/*.jar'
+    }
+    stage('SonarQube analysis') {
+    // performing sonarqube analysis with "withSonarQubeENV(<Name of Server configured in Jenkins>)"
+    withSonarQubeEnv('sonarqube') {
+      // requires SonarQube Scanner for Maven 3.2+
+      sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
+    }
+  }
+}
